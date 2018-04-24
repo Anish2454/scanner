@@ -4,7 +4,23 @@ from math import *
 from gmath import *
 
 def scanline_convert(polygons, i, screen, zbuffer ):
-    pass
+    polygon = [polygons[i], polygons[i+1], polygons[i+2]]
+    polygon.sort(key=lambda x:x[1])
+
+    yt = polygon[2][1]
+    yb = polygon[0][1]
+    xt = polygon[2][0]
+    xb = polygon[0][0]
+    xm = polygon[1][0]
+
+    y = yb
+    x0 = xb
+    x1 = x0
+
+    while(y < yt):
+        #draw scan lines
+
+
 
 def add_polygon( polygons, x0, y0, z0, x1, y1, z1, x2, y2, z2 ):
     add_point(polygons, x0, y0, z0);
