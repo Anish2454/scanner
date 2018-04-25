@@ -6,6 +6,7 @@ from gmath import *
 def scanline_convert(polygons, i, screen, zbuffer ):
     polygon = [polygons[i], polygons[i+1], polygons[i+2]]
     polygon.sort(key=lambda x:x[1])
+    print i
     print polygon
     colorval = (i * 10) % 255
     color = [colorval, colorval, colorval]
@@ -28,31 +29,63 @@ def scanline_convert(polygons, i, screen, zbuffer ):
     z1 = z0
     
     deltaY = 1
-    deltaX0 = (xt-xb)/(yt-yb)
-    deltaZ0 = (zt-zb)/(yt-yb)
-    if (not yt == ym) and (not yb == ym): 
-    	deltaX1after = (xt-xm)/(yt-ym)
-    	deltaZ1after = (zt-zm)/(yt-ym)
-    	deltaZ1before = (zm-zb)/(ym-yb)
-    	deltaX1before = (xm-xb)/(ym-yb)
+    if xt == xb:
+    	deltaX0 = 0
     else:
-    	deltaX1before = (xt-xm)/(yt-yb)
-    	deltaZ1before = (zt-zm)/(yt-yb)
-    	deltaX1after = deltaX1before
-    	deltaZ1after = deltaZ1before
-
-    while(y < yt):
-        #draw scan line
-        draw_line(int(x0),int(y),int(z0),int(x1),int(y),int(z1),screen,zbuffer,color)
-        y += deltaY
-        x0 += deltaX0
-        z0 += deltaZ0
-        if y < ym:
-        	x1 += deltaX1before
-        	z1 += deltaZ1before
-        else:
-        	x1 += deltaX1after
-        	z1 += deltaZ1after
+    	deltaX0 = (yt-yb)/(xt-xb)
+    
+    if zt == zb:
+    	deltaZ0 = 0
+    else:
+    	deltaZ0 = (yt-yb)/(zt-zb)
+    
+    if xm == xb:
+    	deltax1before = 0
+    else:
+    	deltaX1before = (ym-yb)/(xm-xb)
+    
+    if zm == zb:
+    	deltaZ1before = 0
+    else:
+    	deltaZ1before = (ym-yb)/(zm-zb)
+    
+    if xt == xm:
+    	deltaX1after = 0
+    else:
+    	deltaX1after = (yt-ym)/(xt-xm)
+    
+    if zt == zm:
+    	deltaZ1after = 0
+    else:
+    	deltaZ1after = (yt-ym)/(zt-zm)
+    
+    while y < ym:
+    	draw_line(int(x0),int(y),int(z0),int(x1),int(y),int(z1),screen,zbuffer,color)
+    	y += deltaY
+    	if deltaX0 == 0:
+    		x0 += 0
+    	else:
+    		x0 += 1/deltaX0
+    	if deltaZ0 == 0:
+    		z0 += 0
+    	else:
+    		z0 += 1/deltaZ0
+    	x1 += 1/deltaX1before
+    	z1 += 1/deltaZ1before
+    
+    while y < yt:
+    	draw_line(int(x0),int(y),int(z0),int(x1),int(y),int(z1),screen,zbuffer,color)
+    	y += deltaY
+    	if deltaX0 == 0:
+    		x0 += 0
+    	else:
+    		x0 += 1/deltaX0
+    	if deltaZ0 == 0:
+    		z0 += 0
+    	else:
+    		z0 += 1/deltaZ0
+    	x1 += 1/deltaX1after
+    	z1 += 1/deltaZ1after
 
 def add_polygon( polygons, x0, y0, z0, x1, y1, z1, x2, y2, z2 ):
     add_point(polygons, x0, y0, z0);
