@@ -29,14 +29,14 @@ def scanline_convert(polygons, i, screen, zbuffer ):
     deltaZ0 = (zt-zb)/(yt-yb)
     deltaX1 = 0
     deltaZ1 = 0
-    draw_line(int(x0), int(y), int(z0), int(x1), int(y), int(z1), screen, zbuffer, color)
+    draw_line(int(round(x0)), int(round(y)), z0, int(round(x1)), int(round(y)), z1, screen, zbuffer, color)
 
     if ym - yb != 0:
         deltaX1 = (xm-xb)/(ym-yb)
         deltaZ1 = (zm-zb)/(ym-yb)
 
         while y < ym:
-            draw_line(int(x0), int(y), int(z0), int(x1), int(y), int(z1), screen, zbuffer, color)
+            draw_line(int(round(x0)), int(round(y)), z0, int(round(x1)), int(round(y)), z1, screen, zbuffer, color)
             y += deltaY
             x0 += deltaX0
             x1 += deltaX1
@@ -46,13 +46,13 @@ def scanline_convert(polygons, i, screen, zbuffer ):
     y = ym
     x1 = xm
     z1 = zm
-    draw_line(int(x0), int(y), int(z0), int(x1), int(y), int(z1), screen, zbuffer, color)
+    draw_line(int(round(x0)), int(round(y)), z0, int(round(x1)), int(round(y)), z1, screen, zbuffer, color)
 
     if yt - ym != 0:
         deltaX1 = (xt-xm)/(yt-ym)
         deltaZ1 = (zt-zm)/(yt-ym)
         while y < yt:
-            draw_line(int(x0), int(y), int(z0), int(x1), int(y), int(z1), screen, zbuffer, color)
+            draw_line(int(round(x0)), int(round(y)), z0, int(round(x1)), int(round(y)), z1, screen, zbuffer, color)
             y += deltaY
             x0 += deltaX0
             x1 += deltaX1
@@ -284,17 +284,23 @@ def draw_line( x0, y0, z0, x1, y1, z1, screen, zbuffer, color ):
     if x0 > x1:
         xt = x0
         yt = y0
+        zt = z0
         x0 = x1
         y0 = y1
+        z0 = z1
         x1 = xt
         y1 = yt
+        z1 = zt
 
     x = x0
     y = y0
+    z = z0
     A = 2 * (y1 - y0)
     B = -2 * (x1 - x0)
     wide = False
     tall = False
+
+    dz = 0
 
     if ( abs(x1-x0) >= abs(y1 - y0) ): #octants 1/8
         wide = True
@@ -303,6 +309,8 @@ def draw_line( x0, y0, z0, x1, y1, z1, screen, zbuffer, color ):
         dx_east = dx_northeast = 1
         dy_east = 0
         d_east = A
+        if x1 != x0:
+            dz = (z1-z0) / (x1-x0)
         if ( A > 0 ): #octant 1
             d = A + B/2
             dy_northeast = 1
@@ -316,6 +324,8 @@ def draw_line( x0, y0, z0, x1, y1, z1, screen, zbuffer, color ):
         tall = True
         dx_east = 0
         dx_northeast = 1
+        if y1 != y0:
+            dz = (z1-z0) / (y1-y0);
         if ( A > 0 ): #octant 2
             d = A/2 + B
             dy_east = dy_northeast = 1
@@ -332,7 +342,7 @@ def draw_line( x0, y0, z0, x1, y1, z1, screen, zbuffer, color ):
             loop_end = y
 
     while ( loop_start < loop_end ):
-        plot( screen, zbuffer, color, x, y, 0 )
+        plot( screen, zbuffer, color, x, y, z )
         if ( (wide and ((A > 0 and d > 0) or (A < 0 and d < 0))) or
              (tall and ((A > 0 and d < 0) or (A < 0 and d > 0 )))):
 
@@ -344,4 +354,5 @@ def draw_line( x0, y0, z0, x1, y1, z1, screen, zbuffer, color ):
             y+= dy_east
             d+= d_east
         loop_start+= 1
-    plot( screen, zbuffer, color, x, y, 0 )
+        z += dz
+    plot( screen, zbuffer, color, x, y, z1 )
