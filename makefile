@@ -1,6 +1,6 @@
 
 run: main.py display.py draw.py matrix.py parser.py gmath.py
-	python main.py script2
+	python main.py
 
 clean:
 	rm *.pyc
